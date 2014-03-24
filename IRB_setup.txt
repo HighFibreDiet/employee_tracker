@@ -1,0 +1,8 @@
+require 'active_record'
+
+require './lib/employee'
+require './lib/division'
+require './lib/project'
+
+
+ActiveRecord::Base.establish_connection(YAML::load(File.open('./db/config.yml'))["test"])

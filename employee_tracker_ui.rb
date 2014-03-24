@@ -19,6 +19,7 @@ def menu
     puts "Press 'a' to add a division, 'l' to list your divisions"
     puts "Press 'n' to add a new employee, 'v' to view all of your employees, 'ep' to see what projects an employee is working on"
     puts "Press 'p' to add a project, 'lp' to list all the projects"
+    puts "Press 'pe' to add or remove an employee from an existing project"
     puts "Press 'e' to exit."
     choice = gets.chomp
     case choice
@@ -36,6 +37,8 @@ def menu
       add_project
     when 'lp'
       list_projects
+    when 'pe'
+      update_projects
     when 'e'
       puts "Good-bye!"
     else
@@ -46,14 +49,9 @@ end
 
 def list_projects
   puts "Here are all of your projects:"
-  Project.all.each { |project| puts "\n*Project: #{project.name}"}
-  puts "\nChoose a project to drill for further information, or press enter to return to the menu"
-  user_choice = gets.chomp
-
-  if user_choice != ""
-    choice_project = Project.where({:name => user_choice}).first
-    puts "\nProject: #{choice_project.name} \n => Employees: "
-    choice_project.employees.each{ |employee| puts "\t#{employee.name}" }
+  Project.all.each do |project|
+    puts "\n*Project: #{project.name}\nEmployees: "
+    project.employees.each { |employee| puts "\t#{employee.name}" }
   end
   puts "\n"
 end
@@ -106,16 +104,25 @@ def add_project
   print "Enter the project name: "
   project_name_choice = gets.chomp
   puts "\n"
+  new_project = Project.create({:name => project_name_choice})
+
   puts "You will need to assign an employee to this project."
   list_employees
-  print "Choose the employee you would like to assign: "
-  employee_name_choice = gets.chomp
-  employee_choice = Employee.where({:name => employee_name_choice}).first
-  puts "\n"
-  new_project = employee_choice.projects.new({:name => project_name_choice})
-  employee_choice.save
-  puts "The project #{new_project.name} assigned to #{employee_choice.name} was successfully created."
+  done_adding_employees = false
 
+  until done_adding_employees
+    print "Choose the employee you would like to assign or 'x' to finish: "
+    employee_name_choice = gets.chomp
+    if employee_name_choice == 'x'
+      done_adding_employees = true
+    else
+      employee_choice = Employee.where({:name => employee_name_choice}).first
+      puts "\n"
+      new_project.employees <<  employee_choice
+    end
+  end
+
+  puts "The project #{new_project.name} assigned to #{employee_choice.name} was successfully created."
 end
 
 def employee_projects
@@ -131,5 +138,42 @@ def employee_projects
   choice_employee.projects.each { |project| puts "\t #{project.name}"}
   puts "\n"
 end
+
+def project_employees(project)
+  puts "The employees working on #{project.name} are: "
+  project.employees.each { |employee| puts "\t #{employee.name}"}
+  puts "\n"
+end
+
+def update_projects
+  list_projects
+  puts "Enter the name of the project you want to update"
+  user_choice = gets.chomp
+  choice_project = Project.where(:name => user_choice).first
+  project_employees(choice_project)
+
+  puts "Press 'a' to add an employee, or 'r' to remove one"
+  user_choice = gets.chomp
+
+  case user_choice
+  when 'a'
+    puts "Enter the name of the employee you would like to add to the project"
+    employee_choice_name = gets.chomp
+    employee_choice = Employee.where(:name => employee_choice_name).first
+    choice_project.employees << employee_choice
+  when 'r'
+    puts "Enter the name of the employee you would like to remove from the project"
+    employee_choice_name = gets.chomp
+    employee_choice = Employee.where(:name => employee_choice_name).first
+    choice_project.employees.delete(employee_choice)
+  else
+    puts "That was not a valid input. Please try again."
+    update_projects
+  end
+  puts "The current employees on #{choice_project.name} are: "
+  choice_project.employees.each { |employee| puts employee.name}
+end
+
+
 
 welcome
