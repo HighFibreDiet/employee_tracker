@@ -43,8 +43,16 @@ def menu
 end
 
 def list_projects
-  puts "Here are all of your projects listed by division and who is working on them:"
-  Project.all.each { |project| puts "\n#{project.employee.division.name}: #{project.name}: #{project.employee.name}"}
+  puts "Here are all of your projects:"
+  Project.all.each { |project| puts "\n*Project: #{project.name}"}
+  puts "\nChoose a project to drill for further information, or press enter to return to the menu"
+  user_choice = gets.chomp
+
+  if user_choice != ""
+    choice_project = Project.where({:name => user_choice}).first
+    puts "\nProject: #{choice_project.name} \n => Division: #{choice_project.employee.division.name}\n\ => Employee: #{choice_project.employee.name}"
+  end
+  puts "\n"
 end
 
 def add_division
