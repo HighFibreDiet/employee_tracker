@@ -1,6 +1,7 @@
 require 'active_record'
 require './lib/employee'
 require './lib/division'
+require './lib/project'
 
 database_configurations = YAML::load(File.open('./db/config.yml'))
 development_configuration = database_configurations['development']
@@ -17,6 +18,7 @@ def menu
   until choice == 'e'
     puts "Press 'a' to add a division, 'l' to list your divisions"
     puts "Press 'n' to add a new employee, or 'v' to view all of your employees"
+    puts "Press 'p' to add a project, 'lp' to list all the projects"
     puts "Press 'e' to exit."
     choice = gets.chomp
     case choice
@@ -28,12 +30,21 @@ def menu
       add_employee
     when 'v'
       list_employees
+    when 'p'
+      add_project
+    when 'lp'
+      list_projects
     when 'e'
       puts "Good-bye!"
     else
       puts "Sorry, that wasn't a valid option."
     end
   end
+end
+
+def list_projects
+  puts "Here are all of your projects listed by division and who is working on them:"
+  Project.all.each { |project| puts "\n#{project.employee.division.name}: #{project.name}: #{project.employee.name}"}
 end
 
 def add_division
@@ -59,7 +70,7 @@ def add_employee
   employee_choice = gets.chomp
   new_employee = new_division.employees.new({:name => employee_choice})
   new_division.save
-  puts "#{employee_choice} was added to #{new_division.name}"
+  puts "#{new_employee.name} was added to #{new_division.name}"
 end
 
 def list_employees
@@ -78,6 +89,22 @@ def list_employees
     puts "Here are the employees in the #{new_division.name} division"
     new_division.employees.each { |employee| puts employee.name }
   end
+end
+
+def add_project
+  print "Enter the project name: "
+  project_name_choice = gets.chomp
+  puts "\n"
+  puts "You will need to assign an employee to this project."
+  list_employees
+  print "Choose the employee you would like to assign: "
+  employee_name_choice = gets.chomp
+  employee_choice = Employee.where({:name => employee_name_choice}).first
+  puts "\n"
+  new_project = employee_choice.projects.new({:name => project_name_choice})
+  employee_choice.save
+  puts "The project #{new_project.name} assigned to #{employee_choice.name} was successfully created."
+
 end
 
 welcome
