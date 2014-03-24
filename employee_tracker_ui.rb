@@ -17,7 +17,7 @@ def menu
   choice = nil
   until choice == 'e'
     puts "Press 'a' to add a division, 'l' to list your divisions"
-    puts "Press 'n' to add a new employee, or 'v' to view all of your employees"
+    puts "Press 'n' to add a new employee, 'v' to view all of your employees, 'ep' to see what projects an employee is working on"
     puts "Press 'p' to add a project, 'lp' to list all the projects"
     puts "Press 'e' to exit."
     choice = gets.chomp
@@ -30,6 +30,8 @@ def menu
       add_employee
     when 'v'
       list_employees
+    when 'ep'
+      employee_projects
     when 'p'
       add_project
     when 'lp'
@@ -50,7 +52,8 @@ def list_projects
 
   if user_choice != ""
     choice_project = Project.where({:name => user_choice}).first
-    puts "\nProject: #{choice_project.name} \n => Division: #{choice_project.employee.division.name}\n\ => Employee: #{choice_project.employee.name}"
+    puts "\nProject: #{choice_project.name} \n => Employees: "
+    choice_project.employees.each{ |employee| puts "\t#{employee.name}" }
   end
   puts "\n"
 end
@@ -113,6 +116,20 @@ def add_project
   employee_choice.save
   puts "The project #{new_project.name} assigned to #{employee_choice.name} was successfully created."
 
+end
+
+def employee_projects
+  list_employees
+
+  print "Choose an employee to view their projects: "
+  choice_name = gets.chomp
+  puts "\n"
+
+  choice_employee = Employee.where({:name => choice_name}).first
+
+  puts "The projects that #{choice_employee.name} is working on are: "
+  choice_employee.projects.each { |project| puts "\t #{project.name}"}
+  puts "\n"
 end
 
 welcome
