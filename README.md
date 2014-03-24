@@ -13,4 +13,4 @@ DONE * Now, the company has gotten more collaborative - multiple employees can w
 DONE * The company wants to start tracking what each employee contributed to a project. Read the Rails guide on has_many :through and use it instead of has_and_belongs_
 to_many. Make sure that the company can provide a description of each employee's contribution to the project.
 
-* Let the company choose a division and list out all of the projects its employees have worked on. Do this with a single line of Active Record methods.
+DONE * Let the company choose a division and list out all of the projects its employees have worked on. Do this with a single line of Active Record methods.

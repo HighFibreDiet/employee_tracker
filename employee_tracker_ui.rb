@@ -17,7 +17,7 @@ end
 def menu
   choice = nil
   until choice == 'e'
-    puts "Press 'a' to add a division, 'l' to list your divisions"
+    puts "Press 'a' to add a division, 'l' to list your divisions, 'dp' to list a division's projects"
     puts "Press 'n' to add a new employee, 'v' to view all of your employees, 'ep' to see what projects an employee is working on"
     puts "Press 'p' to add a project, 'lp' to list all the projects"
     puts "Press 'pe' to add or remove an employee from an existing project"
@@ -40,12 +40,25 @@ def menu
       list_projects
     when 'pe'
       update_projects
+    when 'dp'
+      division_projects
     when 'e'
       puts "Good-bye!"
     else
       puts "Sorry, that wasn't a valid option."
     end
   end
+end
+
+def division_projects
+  list_divisions
+  puts "Enter the name of a division to see all of of its associated projects"
+  user_choice = gets.chomp
+  new_division = Division.where(:name => user_choice).first
+  puts "The projects for #{new_division.name} are: "
+  new_division.projects.each { |project| puts project.name }
+  put "\n"
+
 end
 
 def list_projects
