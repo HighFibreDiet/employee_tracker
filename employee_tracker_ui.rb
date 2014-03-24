@@ -2,6 +2,7 @@ require 'active_record'
 require './lib/employee'
 require './lib/division'
 require './lib/project'
+require './lib/contribution'
 
 database_configurations = YAML::load(File.open('./db/config.yml'))
 development_configuration = database_configurations['development']
@@ -51,7 +52,7 @@ def list_projects
   puts "Here are all of your projects:"
   Project.all.each do |project|
     puts "\n*Project: #{project.name}\nEmployees: "
-    project.employees.each { |employee| puts "\t#{employee.name}" }
+    project.employees.each { |employee| puts "\t#{employee.name} - Contribution: #{Contribution.where(:employee_id => employee.id, :project_id => project.id).first.contribution_desc}" }
   end
   puts "\n"
 end
@@ -107,6 +108,12 @@ def add_project
   new_project = Project.create({:name => project_name_choice})
 
   puts "You will need to assign an employee to this project."
+  add_employee_to_project(new_project)
+
+  puts "The project #{new_project.name} was successfully created."
+end
+
+def add_employee_to_project(project)
   list_employees
   done_adding_employees = false
 
@@ -117,12 +124,14 @@ def add_project
       done_adding_employees = true
     else
       employee_choice = Employee.where({:name => employee_name_choice}).first
-      puts "\n"
-      new_project.employees <<  employee_choice
+      puts "\nWhat is the employee's contribution to this project?"
+      input_desc = gets.chomp
+      project.contributions.create(:contribution_desc => input_desc, :employee_id => employee_choice.id)
     end
   end
 
-  puts "The project #{new_project.name} assigned to #{employee_choice.name} was successfully created."
+  puts "The #{employee_choice.name} has been added to #{project.name}."
+
 end
 
 def employee_projects
@@ -141,7 +150,7 @@ end
 
 def project_employees(project)
   puts "The employees working on #{project.name} are: "
-  project.employees.each { |employee| puts "\t #{employee.name}"}
+  project.employees.each { |employee| puts "\t #{employee.name} - Contribution: #{Contribution.where(:employee_id => employee.id, :project_id => project.id).first.contribution_desc}"}
   puts "\n"
 end
 
@@ -157,10 +166,7 @@ def update_projects
 
   case user_choice
   when 'a'
-    puts "Enter the name of the employee you would like to add to the project"
-    employee_choice_name = gets.chomp
-    employee_choice = Employee.where(:name => employee_choice_name).first
-    choice_project.employees << employee_choice
+    add_employee_to_project(choice_project)
   when 'r'
     puts "Enter the name of the employee you would like to remove from the project"
     employee_choice_name = gets.chomp

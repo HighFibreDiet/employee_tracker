@@ -3,6 +3,7 @@ require 'rspec'
 require 'employee'
 require 'division'
 require 'project'
+require 'contribution'
 require 'shoulda-matchers'
 
 ActiveRecord::Base.establish_connection(YAML::load(File.open('./db/config.yml'))["test"])
